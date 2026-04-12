@@ -1,0 +1,5 @@
+{
+  "name": "BarberFlow",
+  "description": "Sistema completo de gestão para barbearias com agendamento, dashboard administrativo e modo offline.",
+  "requestFramePermissions": []
+}
