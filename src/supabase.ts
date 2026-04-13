@@ -12,7 +12,16 @@ export const supabase = createClient(
   supabaseAnonKey || 'placeholder'
 );
 
-export type UserRole = 'admin' | 'employee' | 'client';
+export type UserRole = 'admin' | 'employee' | 'client' | 'super_admin';
+
+export interface Barbershop {
+  id: string;
+  name: string;
+  owner_id: string;
+  subscription_expires_at: string;
+  payment_status: 'pending' | 'confirmed' | 'none';
+  created_at: string;
+}
 
 export interface Profile {
   id: string;
@@ -20,7 +29,7 @@ export interface Profile {
   email: string;
   role: UserRole;
   photo_url?: string;
-  subscription_expires_at?: string;
+  barbershop_id?: string;
   created_at: string;
 }
 
@@ -38,6 +47,7 @@ export interface Order {
   client_id: string;
   barber_id: string;
   service_id: string;
+  barbershop_id: string;
   status: 'pending' | 'in-progress' | 'completed' | 'cancelled';
   value: number;
   scheduled_at: string;

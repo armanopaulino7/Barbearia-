@@ -1,7 +1,7 @@
 import React from 'react';
 import { supabase } from '../supabase';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { Chrome, Mail, Lock } from 'lucide-react';
+import { Chrome, Mail, Lock, Scissors } from 'lucide-react';
 
 export default function Login() {
   const navigate = useNavigate();
@@ -10,6 +10,7 @@ export default function Login() {
   const [error, setError] = React.useState<string | null>(null);
   const [email, setEmail] = React.useState('');
   const [password, setPassword] = React.useState('');
+  const [barbershopName, setBarbershopName] = React.useState('');
   const [isSignUp, setIsSignUp] = React.useState(false);
 
   const from = (location.state as any)?.from?.pathname || '/';
@@ -39,16 +40,24 @@ export default function Login() {
 
     try {
       if (isSignUp) {
-        const { error } = await supabase.auth.signUp({
+        if (!barbershopName) {
+          throw new Error('Nome da barbearia é obrigatório para cadastro.');
+        }
+
+        const { data: authData, error: authError } = await supabase.auth.signUp({
           email,
           password,
           options: {
             data: {
               display_name: email.split('@')[0],
+              barbershop_name: barbershopName
             }
           }
         });
-        if (error) throw error;
+        
+        if (authError) throw authError;
+        if (!authData.user) throw new Error('Falha ao criar usuário.');
+
         setError('Verifique seu email para confirmar o cadastro!');
       } else {
         const { error } = await supabase.auth.signInWithPassword({
@@ -72,7 +81,7 @@ export default function Login() {
           Bem-vindo ao <span className="text-amber-600">BarberFlow</span>
         </h1>
         <p className="text-neutral-500">
-          Entre para agendar seus cortes e gerenciar seus horários.
+          {isSignUp ? 'Crie sua barbearia e comece a gerenciar hoje.' : 'Entre para agendar seus cortes e gerenciar seus horários.'}
         </p>
       </div>
 
@@ -84,6 +93,23 @@ export default function Login() {
         )}
 
         <form onSubmit={handleEmailAuth} className="space-y-4 text-left">
+          {isSignUp && (
+            <div className="space-y-2">
+              <label className="text-sm font-medium text-neutral-700">Nome da Barbearia</label>
+              <div className="relative">
+                <Scissors className="absolute left-3 top-3 text-neutral-400" size={18} />
+                <input
+                  type="text"
+                  value={barbershopName}
+                  onChange={(e) => setBarbershopName(e.target.value)}
+                  required
+                  className="w-full rounded-xl border border-neutral-200 bg-white py-2.5 pl-10 pr-4 focus:border-amber-600 focus:outline-none focus:ring-1 focus:ring-amber-600"
+                  placeholder="Ex: Barbearia do João"
+                />
+              </div>
+            </div>
+          )}
+
           <div className="space-y-2">
             <label className="text-sm font-medium text-neutral-700">Email</label>
             <div className="relative">
@@ -119,7 +145,7 @@ export default function Login() {
             disabled={loading}
             className="w-full rounded-xl bg-neutral-900 py-3 font-bold text-white transition-all hover:bg-neutral-800 active:scale-95 disabled:opacity-50"
           >
-            {loading ? 'Carregando...' : isSignUp ? 'Criar Conta' : 'Entrar'}
+            {loading ? 'Carregando...' : isSignUp ? 'Criar Barbearia' : 'Entrar'}
           </button>
         </form>
 

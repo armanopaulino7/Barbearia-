@@ -8,7 +8,7 @@ import { ptBR } from 'date-fns/locale';
 import { motion } from 'motion/react';
 
 export default function Appointments() {
-  const { user, isAuthReady } = useAuth();
+  const { user, profile, isAuthReady } = useAuth();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const initialServiceId = searchParams.get('service');
@@ -30,9 +30,11 @@ export default function Appointments() {
 
   useEffect(() => {
     const fetchData = async () => {
+      if (!profile?.barbershop_id) return;
+
       const [servicesRes, barbersRes] = await Promise.all([
-        supabase.from('services').select('*'),
-        supabase.from('profiles').select('*').eq('role', 'employee')
+        supabase.from('services').select('*').eq('barbershop_id', profile.barbershop_id),
+        supabase.from('profiles').select('*').eq('role', 'employee').eq('barbershop_id', profile.barbershop_id)
       ]);
 
       if (servicesRes.data) setServices(servicesRes.data as Service[]);
@@ -40,14 +42,14 @@ export default function Appointments() {
     };
 
     fetchData();
-  }, []);
+  }, [profile?.barbershop_id]);
 
   const timeSlots = [
     '08:00', '09:00', '10:00', '11:00', '13:00', '14:00', '15:00', '16:00', '17:00', '18:00'
   ];
 
   const handleBooking = async () => {
-    if (!user || !selectedService || !selectedBarber || !selectedDate || !selectedTime) return;
+    if (!user || !profile?.barbershop_id || !selectedService || !selectedBarber || !selectedDate || !selectedTime) return;
 
     setLoading(true);
     try {
@@ -60,6 +62,7 @@ export default function Appointments() {
         client_id: user.id,
         barber_id: selectedBarber,
         service_id: selectedService,
+        barbershop_id: profile.barbershop_id,
         status: 'pending',
         value: service?.price || 0,
         scheduled_at: scheduledAt.toISOString(),

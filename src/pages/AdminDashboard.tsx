@@ -41,9 +41,14 @@ export default function AdminDashboard() {
 
   useEffect(() => {
     const fetchStats = async () => {
+      if (!profile?.barbershop_id) return;
+
       const [ordersRes, clientsRes] = await Promise.all([
-        supabase.from('orders').select('*'),
-        supabase.from('profiles').select('*', { count: 'exact', head: true }).eq('role', 'client')
+        supabase.from('orders').select('*').eq('barbershop_id', profile.barbershop_id),
+        supabase.from('profiles')
+          .select('*', { count: 'exact', head: true })
+          .eq('role', 'client')
+          .eq('barbershop_id', profile.barbershop_id)
       ]);
 
       if (ordersRes.data) {
@@ -66,7 +71,12 @@ export default function AdminDashboard() {
     // Real-time updates
     const channel = supabase
       .channel('admin-stats')
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'orders' }, () => {
+      .on('postgres_changes', { 
+        event: '*', 
+        schema: 'public', 
+        table: 'orders',
+        filter: profile?.barbershop_id ? `barbershop_id=eq.${profile.barbershop_id}` : undefined
+      }, () => {
         fetchStats();
       })
       .subscribe();
@@ -74,7 +84,7 @@ export default function AdminDashboard() {
     return () => {
       supabase.removeChannel(channel);
     };
-  }, []);
+  }, [profile?.barbershop_id]);
 
   const statCards = [
     { label: 'Faturamento Total', value: new Intl.NumberFormat('pt-AO', { style: 'currency', currency: 'AOA' }).format(stats.totalRevenue), icon: TrendingUp, color: 'text-green-600', bg: 'bg-green-50' },

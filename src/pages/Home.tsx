@@ -1,18 +1,26 @@
 import React, { useEffect, useState } from 'react';
 import { supabase, Service } from '../supabase';
+import { useAuth } from '../contexts/AuthContext';
 import { motion } from 'motion/react';
 import { Scissors, Clock, Star, ChevronRight } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
 export default function Home() {
+  const { profile } = useAuth();
   const [services, setServices] = useState<Service[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchServices = async () => {
+      if (!profile?.barbershop_id) {
+        setLoading(false);
+        return;
+      }
+
       const { data, error } = await supabase
         .from('services')
         .select('*')
+        .eq('barbershop_id', profile.barbershop_id)
         .order('name');
       
       if (!error && data) {
@@ -26,7 +34,12 @@ export default function Home() {
     // Real-time updates for services
     const channel = supabase
       .channel('services-changes')
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'services' }, () => {
+      .on('postgres_changes', { 
+        event: '*', 
+        schema: 'public', 
+        table: 'services',
+        filter: profile?.barbershop_id ? `barbershop_id=eq.${profile.barbershop_id}` : undefined
+      }, () => {
         fetchServices();
       })
       .subscribe();
@@ -34,7 +47,7 @@ export default function Home() {
     return () => {
       supabase.removeChannel(channel);
     };
-  }, []);
+  }, [profile?.barbershop_id]);
 
   if (loading) {
     return (

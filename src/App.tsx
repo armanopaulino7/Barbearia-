@@ -9,12 +9,18 @@ import SubscriptionBlocked from './pages/SubscriptionBlocked';
 import Profile from './pages/Profile';
 import { isAfter } from 'date-fns';
 
+import SuperAdmin from './pages/SuperAdmin';
+
 function AppRoutes() {
-  const { profile, loading, isAuthReady, user } = useAuth();
+  const { profile, barbershop, loading, isAuthReady, user } = useAuth();
 
   const isSubscriptionExpired = () => {
-    if (profile?.role === 'admin' && profile.subscription_expires_at) {
-      const expiryDate = new Date(profile.subscription_expires_at);
+    // Super admins are never blocked
+    if (profile?.role === 'super_admin') return false;
+    
+    // Check barbershop subscription
+    if (barbershop?.subscription_expires_at) {
+      const expiryDate = new Date(barbershop.subscription_expires_at);
       return isAfter(new Date(), expiryDate);
     }
     return false;
@@ -45,6 +51,16 @@ function AppRoutes() {
         element={
           profile?.role === 'admin' 
             ? <Layout userRole={profile.role}><AdminDashboard /></Layout> 
+            : <Navigate to="/" />
+        } 
+      />
+
+      {/* Super Admin Routes */}
+      <Route 
+        path="/super-admin" 
+        element={
+          profile?.role === 'super_admin' 
+            ? <Layout userRole={profile.role}><SuperAdmin /></Layout> 
             : <Navigate to="/" />
         } 
       />
