@@ -11,7 +11,8 @@ import {
   Users,
   Scissors,
   CreditCard,
-  Star
+  Star,
+  Shield
 } from 'lucide-react';
 import { supabase } from '../supabase';
 import { useAuth } from '../contexts/AuthContext';
@@ -34,14 +35,15 @@ export default function Layout({ children, userRole }: LayoutProps) {
   };
 
   const navItems = [
-    { icon: Home, label: 'Vitrine', path: '/', roles: ['admin', 'employee', 'client', undefined] },
-    { icon: Calendar, label: 'Agendamentos', path: '/appointments', roles: ['admin', 'employee', 'client'] },
-    { icon: LayoutDashboard, label: 'Dashboard', path: '/admin', roles: ['admin'] },
-    { icon: Users, label: 'Funcionários', path: '/admin/employees', roles: ['admin'] },
-    { icon: Scissors, label: 'Serviços', path: '/admin/services', roles: ['admin'] },
-    { icon: CreditCard, label: 'Pagamentos', path: '/admin/payments', roles: ['admin'] },
-    { icon: Star, label: 'Avaliações', path: '/reviews', roles: ['admin', 'employee', 'client'] },
-    { icon: User, label: 'Perfil', path: '/profile', roles: ['admin', 'employee', 'client'] },
+    { icon: Home, label: 'Vitrine', path: '/', roles: ['admin', 'employee', 'client', 'super_admin', undefined] },
+    { icon: Calendar, label: 'Agendamentos', path: '/appointments', roles: ['admin', 'employee', 'client', 'super_admin'] },
+    { icon: LayoutDashboard, label: 'Dashboard', path: '/admin', roles: ['admin', 'super_admin'] },
+    { icon: Users, label: 'Funcionários', path: '/admin/employees', roles: ['admin', 'super_admin'] },
+    { icon: Scissors, label: 'Serviços', path: '/admin/services', roles: ['admin', 'super_admin'] },
+    { icon: CreditCard, label: 'Pagamentos', path: '/admin/payments', roles: ['admin', 'super_admin'] },
+    { icon: Star, label: 'Avaliações', path: '/reviews', roles: ['admin', 'employee', 'client', 'super_admin'] },
+    { icon: User, label: 'Perfil', path: '/profile', roles: ['admin', 'employee', 'client', 'super_admin'] },
+    { icon: Shield, label: 'Super Admin', path: '/super-admin', roles: ['super_admin'] },
   ];
 
   const filteredNavItems = navItems.filter(item => 

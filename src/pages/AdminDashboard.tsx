@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { supabase, Order } from '../supabase';
 import { useAuth } from '../contexts/AuthContext';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { 
   TrendingUp, 
   Users, 
@@ -9,7 +9,9 @@ import {
   CheckCircle2, 
   Clock,
   AlertCircle,
-  Scissors
+  Scissors,
+  CreditCard,
+  Star
 } from 'lucide-react';
 import { motion } from 'motion/react';
 
@@ -145,22 +147,34 @@ export default function AdminDashboard() {
         <div className="rounded-2xl border border-neutral-200 bg-white p-6">
           <h3 className="mb-6 text-lg font-bold">Ações Rápidas</h3>
           <div className="grid grid-cols-2 gap-4">
-            <button className="flex flex-col items-center justify-center gap-2 rounded-xl border border-neutral-200 p-4 transition-colors hover:bg-neutral-50">
+            <Link 
+              to="/admin/employees"
+              className="flex flex-col items-center justify-center gap-2 rounded-xl border border-neutral-200 p-4 transition-colors hover:bg-neutral-50"
+            >
               <Users className="text-neutral-600" />
-              <span className="text-sm font-medium">Novo Barbeiro</span>
-            </button>
-            <button className="flex flex-col items-center justify-center gap-2 rounded-xl border border-neutral-200 p-4 transition-colors hover:bg-neutral-50">
+              <span className="text-sm font-medium">Funcionários</span>
+            </Link>
+            <Link 
+              to="/admin/services"
+              className="flex flex-col items-center justify-center gap-2 rounded-xl border border-neutral-200 p-4 transition-colors hover:bg-neutral-50"
+            >
               <Scissors className="text-neutral-600" />
-              <span className="text-sm font-medium">Novo Serviço</span>
-            </button>
-            <button className="flex flex-col items-center justify-center gap-2 rounded-xl border border-neutral-200 p-4 transition-colors hover:bg-neutral-50">
-              <AlertCircle className="text-neutral-600" />
-              <span className="text-sm font-medium">Relatórios</span>
-            </button>
-            <button className="flex flex-col items-center justify-center gap-2 rounded-xl border border-neutral-200 p-4 transition-colors hover:bg-neutral-50">
-              <CheckCircle2 className="text-neutral-600" />
-              <span className="text-sm font-medium">Configurações</span>
-            </button>
+              <span className="text-sm font-medium">Serviços</span>
+            </Link>
+            <Link 
+              to="/admin/payments"
+              className="flex flex-col items-center justify-center gap-2 rounded-xl border border-neutral-200 p-4 transition-colors hover:bg-neutral-50"
+            >
+              <CreditCard className="text-neutral-600" />
+              <span className="text-sm font-medium">Pagamentos</span>
+            </Link>
+            <Link 
+              to="/reviews"
+              className="flex flex-col items-center justify-center gap-2 rounded-xl border border-neutral-200 p-4 transition-colors hover:bg-neutral-50"
+            >
+              <Star className="text-neutral-600" />
+              <span className="text-sm font-medium">Avaliações</span>
+            </Link>
           </div>
         </div>
       </div>

@@ -7,6 +7,10 @@ import Appointments from './pages/Appointments';
 import AdminDashboard from './pages/AdminDashboard';
 import SubscriptionBlocked from './pages/SubscriptionBlocked';
 import Profile from './pages/Profile';
+import Employees from './pages/Employees';
+import Services from './pages/Services';
+import Payments from './pages/Payments';
+import Reviews from './pages/Reviews';
 import { isAfter } from 'date-fns';
 
 import SuperAdmin from './pages/SuperAdmin';
@@ -44,13 +48,38 @@ function AppRoutes() {
       <Route path="/login" element={<Login />} />
       <Route path="/appointments" element={<Layout userRole={profile?.role}><Appointments /></Layout>} />
       <Route path="/profile" element={<Layout userRole={profile?.role}><Profile /></Layout>} />
+      <Route path="/reviews" element={<Layout userRole={profile?.role}><Reviews /></Layout>} />
       
       {/* Admin Routes */}
       <Route 
         path="/admin" 
         element={
-          profile?.role === 'admin' 
+          profile?.role === 'admin' || profile?.role === 'super_admin'
             ? <Layout userRole={profile.role}><AdminDashboard /></Layout> 
+            : <Navigate to="/" />
+        } 
+      />
+      <Route 
+        path="/admin/employees" 
+        element={
+          profile?.role === 'admin' || profile?.role === 'super_admin'
+            ? <Layout userRole={profile.role}><Employees /></Layout> 
+            : <Navigate to="/" />
+        } 
+      />
+      <Route 
+        path="/admin/services" 
+        element={
+          profile?.role === 'admin' || profile?.role === 'super_admin'
+            ? <Layout userRole={profile.role}><Services /></Layout> 
+            : <Navigate to="/" />
+        } 
+      />
+      <Route 
+        path="/admin/payments" 
+        element={
+          profile?.role === 'admin' || profile?.role === 'super_admin'
+            ? <Layout userRole={profile.role}><Payments /></Layout> 
             : <Navigate to="/" />
         } 
       />
