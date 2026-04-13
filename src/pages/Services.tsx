@@ -1,14 +1,15 @@
 import React, { useEffect, useState } from 'react';
 import { supabase, Service } from '../supabase';
 import { useAuth } from '../contexts/AuthContext';
-import { Plus, Scissors, Trash2, Edit2 } from 'lucide-react';
+import { Plus, Scissors, Trash2, Edit2, Image as ImageIcon, Upload } from 'lucide-react';
 
 export default function Services() {
   const { profile } = useAuth();
   const [services, setServices] = useState<Service[]>([]);
   const [loading, setLoading] = useState(true);
   const [isAdding, setIsAdding] = useState(false);
-  const [formData, setFormData] = useState({ name: '', price: '', description: '' });
+  const [uploading, setUploading] = useState(false);
+  const [formData, setFormData] = useState({ name: '', price: '', description: '', image_url: '' });
 
   useEffect(() => {
     if (profile?.barbershop_id) {
@@ -30,6 +31,35 @@ export default function Services() {
     setLoading(false);
   };
 
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file || !profile?.barbershop_id) return;
+
+    setUploading(true);
+    try {
+      const fileExt = file.name.split('.').pop();
+      const fileName = `${Math.random()}.${fileExt}`;
+      const filePath = `${profile.barbershop_id}/${fileName}`;
+
+      const { error: uploadError } = await supabase.storage
+        .from('services')
+        .upload(filePath, file);
+
+      if (uploadError) throw uploadError;
+
+      const { data: { publicUrl } } = supabase.storage
+        .from('services')
+        .getPublicUrl(filePath);
+
+      setFormData({ ...formData, image_url: publicUrl });
+    } catch (err) {
+      console.error('Error uploading image:', err);
+      alert('Erro ao carregar imagem. Verifique se o bucket "services" existe no Supabase.');
+    } finally {
+      setUploading(false);
+    }
+  };
+
   const handleAddService = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!profile?.barbershop_id) return;
@@ -38,11 +68,12 @@ export default function Services() {
       name: formData.name,
       price: parseFloat(formData.price),
       description: formData.description,
+      image_url: formData.image_url,
       barbershop_id: profile.barbershop_id
     });
 
     if (!error) {
-      setFormData({ name: '', price: '', description: '' });
+      setFormData({ name: '', price: '', description: '', image_url: '' });
       setIsAdding(false);
       fetchServices();
     }
@@ -90,6 +121,43 @@ export default function Services() {
                 placeholder="Ex: 3000"
                 required
               />
+            </div>
+            <div className="col-span-full space-y-2">
+              <label className="text-sm font-medium">Imagem do Corte</label>
+              <div className="flex items-center gap-4">
+                <div className="relative flex h-32 w-48 items-center justify-center overflow-hidden rounded-xl border-2 border-dashed border-neutral-200 bg-neutral-50 transition-colors hover:border-amber-600">
+                  {formData.image_url ? (
+                    <img src={formData.image_url} alt="Preview" className="h-full w-full object-cover" />
+                  ) : (
+                    <div className="flex flex-col items-center gap-2 text-neutral-400">
+                      {uploading ? (
+                        <div className="h-6 w-6 animate-spin rounded-full border-2 border-amber-600 border-t-transparent"></div>
+                      ) : (
+                        <>
+                          <ImageIcon size={24} />
+                          <span className="text-xs">Clique para carregar</span>
+                        </>
+                      )}
+                    </div>
+                  )}
+                  <input
+                    type="file"
+                    accept="image/*"
+                    onChange={handleImageUpload}
+                    className="absolute inset-0 cursor-pointer opacity-0"
+                    disabled={uploading}
+                  />
+                </div>
+                {formData.image_url && (
+                  <button 
+                    type="button"
+                    onClick={() => setFormData({ ...formData, image_url: '' })}
+                    className="text-xs font-bold text-red-600 hover:underline"
+                  >
+                    Remover imagem
+                  </button>
+                )}
+              </div>
             </div>
             <div className="col-span-full space-y-2">
               <label className="text-sm font-medium">Descrição</label>

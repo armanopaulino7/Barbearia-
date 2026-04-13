@@ -36,7 +36,7 @@ export default function AdminDashboard() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    if (isAuthReady && profile?.role !== 'admin') {
+    if (isAuthReady && profile?.role !== 'admin' && profile?.role !== 'super_admin') {
       navigate('/');
     }
   }, [profile, isAuthReady, navigate]);
